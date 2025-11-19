@@ -6,7 +6,7 @@ use App\Models\Appointment;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 
-class AppoitmentService
+class AppointmentService
 {
     /**
      * Create a new appointment.

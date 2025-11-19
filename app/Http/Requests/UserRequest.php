@@ -25,7 +25,7 @@ class UserRequest extends FormRequest
     {
         $userId = $this->route('user') ? $this->route('user')->id : null;
 
-        $rulels = [
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $userId],
             'password' => [$userId ? 'nullable' : 'required', 'string', 'min:8', 'confirmed'],
@@ -39,7 +39,7 @@ class UserRequest extends FormRequest
             $rules['password'] = 'nullable|string|min:8|confirmed';
         }
 
-        return $rulels;
+        return $rules;
     }
 
     /**

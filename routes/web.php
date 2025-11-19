@@ -1,37 +1,41 @@
 <?php
 // routes/web.php
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\AppointmentController;
-use App\Http\Controllers\MedicalRecordController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\PrescriptionController;
+use App\Http\Controllers\LabTestController;
+use App\Http\Controllers\BillingController;
 
-Route::middleware(['auth'])->group(function () {
-    // Admin routes
-    Route::middleware(['role:admin'])->group(function () {
-        Route::get('/admin/dashboard', [AdminController::class, 'dashboard']);
-        Route::resource('/admin/users', UserController::class);
-        Route::resource('/admin/departments', DepartmentController::class);
-    });
-
-    // Doctor routes
-    Route::middleware(['role:doctor'])->group(function () {
-        Route::get('/doctor/dashboard', [DoctorController::class, 'dashboard']);
-        Route::get('/doctor/appointments', [AppointmentController::class, 'doctorIndex']);
-        Route::resource('/doctor/medical-records', MedicalRecordController::class);
-        Route::resource('/doctor/prescriptions', PrescriptionController::class);
-    });
-
-    // Patient routes
-    Route::middleware(['role:patient'])->group(function () {
-        Route::get('/patient/dashboard', [PatientController::class, 'dashboard']);
-        Route::resource('/patient/appointments', AppointmentController::class);
-        Route::get('/patient/medical-history', [MedicalRecordController::class, 'patientHistory']);
-    });
-
-    // Receptionist routes
-    Route::middleware(['role:receptionist'])->group(function () {
-        Route::get('/receptionist/dashboard', [ReceptionistController::class, 'dashboard']);
-        Route::resource('/receptionist/appointments', AppointmentController::class);
-    });
-
-    // Common routes
-    Route::resource('appointments', AppointmentController::class)->only(['index', 'show']);
+// Welcome Route
+Route::get('/', function () {
+    return view('welcome');
 });
+
+// Authentication Routes (if using Laravel Breeze/Jetstream)
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth'])->name('dashboard');
+
+// Resource Routes for all models
+Route::middleware(['auth'])->group(function () {
+    Route::resource('users', UserController::class);
+    Route::resource('appointments', AppointmentController::class);
+    Route::resource('departments', DepartmentController::class);
+    Route::resource('prescriptions', PrescriptionController::class);
+    Route::resource('labtests', LabTestController::class);
+    Route::resource('billings', BillingController::class);
+});
+
+// User management routes
+Route::get('/users', [UserController::class, 'index'])->name('users.index');
+Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+Route::post('/users', [UserController::class, 'store'])->name('users.store');
+Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
+Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
+// If you need authentication, you can use:
+require __DIR__.'/auth.php';

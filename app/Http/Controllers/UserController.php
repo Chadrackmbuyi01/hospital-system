@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\User;
@@ -7,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;  
 use App\Services\UserService;
 use Illuminate\View\View;
+use App\Http\Requests\UserRequest;
 
 class UserController extends Controller
 {
@@ -28,9 +28,10 @@ class UserController extends Controller
         return view('users.create');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(UserRequest $request): RedirectResponse
     {
-        $user = $this->userService->createUser($request->validate());
+        $validated = $request->validated();
+        $this->userService->createUser($validated);
 
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
@@ -45,11 +46,10 @@ class UserController extends Controller
         return view('users.edit', compact('user'));
     }
 
-    public function update(Request $request, User $user): RedirectResponse
+    public function update(UserRequest $request, User $user): RedirectResponse
     {
-        $user = User::findOrFail($id);
-
-        $this->userService->updateUser($user, $request->validate());
+        $validated = $request->validated();
+        $this->userService->updateUser($user, $validated);
 
         return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
@@ -57,7 +57,6 @@ class UserController extends Controller
     public function destroy(User $user): RedirectResponse
     {
         $this->userService->deleteUser($user);
-
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 }

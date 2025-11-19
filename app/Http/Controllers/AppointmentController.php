@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
@@ -7,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use App\Services\AppointmentService;
 use Illuminate\View\View;
-
+use App\Http\Requests\AppointmentRequest;
 
 class AppointmentController extends Controller
 {
@@ -26,12 +25,16 @@ class AppointmentController extends Controller
 
     public function create(): View
     {
-        return view('appointments.create');
+        // You'll need to pass doctors and patients to the view
+        $doctors = \App\Models\User::where('role', 'doctor')->get();
+        $patients = \App\Models\User::where('role', 'patient')->get();
+        return view('appointments.create', compact('doctors', 'patients'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(AppointmentRequest $request): RedirectResponse
     {
-        $appointment = $this->appointmentService->createAppointment($request->validate());
+        $validated = $request->validated();
+        $this->appointmentService->createAppointment($validated);
 
         return redirect()->route('appointments.index')->with('success', 'Appointment created successfully.');
     }
@@ -43,12 +46,15 @@ class AppointmentController extends Controller
 
     public function edit(Appointment $appointment): View
     {
-        return view('appointments.edit', compact('appointment'));
+        $doctors = \App\Models\User::where('role', 'doctor')->get();
+        $patients = \App\Models\User::where('role', 'patient')->get();
+        return view('appointments.edit', compact('appointment', 'doctors', 'patients'));
     }
 
-    public function update(Request $request, Appointment $appointment): RedirectResponse
+    public function update(AppointmentRequest $request, Appointment $appointment): RedirectResponse
     {
-        $this->appointmentService->updateAppointment($appointment, $request->validate());
+        $validated = $request->validated();
+        $this->appointmentService->updateAppointment($appointment, $validated);
 
         return redirect()->route('appointments.index')->with('success', 'Appointment updated successfully.');
     }
@@ -56,7 +62,6 @@ class AppointmentController extends Controller
     public function destroy(Appointment $appointment): RedirectResponse
     {
         $this->appointmentService->deleteAppointment($appointment);
-
         return redirect()->route('appointments.index')->with('success', 'Appointment deleted successfully.');
     }
 }

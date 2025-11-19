@@ -24,7 +24,10 @@ return new class extends Migration
             $table->enum('gender', ['male', 'female', 'other'])->nullable();
             $table->string('specialization')->nullable(); // For doctors
             $table->string('license_number')->nullable(); // For doctors
-            $table->foreignId('department_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreign('department_id')
+                  ->references('id')
+                  ->on('departments')
+                  ->onDelete('set null');
             $table->boolean('is_active')->default(true);
             $table->rememberToken();
             $table->timestamps();
@@ -40,5 +43,8 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign(['department_id']);
+        });
     }
 };
